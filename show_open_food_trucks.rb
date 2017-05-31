@@ -1,14 +1,13 @@
 #!/usr/bin/env ruby
 
 require 'net/http'
-# require 'optparse'
 require 'date'
 require 'json'
 require 'formatador'
 
 class API
   TZ = "-07:00"
-  BASE_URL = "http://data.sfgov.org/resource/bbb8-hzi6.json"
+  BASE_URL = "https://data.sfgov.org/resource/bbb8-hzi6.json"
   LIMIT = 10
   SELECTED_COLUMNS = "applicant, location"
 
@@ -52,7 +51,8 @@ class API
 
   def get_open
     req = Net::HTTP::Get.new(url.to_s)
-    res = Net::HTTP.start(url.host, url.port) {|http|
+    # req["X-App-Token"] = INSERT APP_TOKEN HERE TO PREVENT THROTTLING
+    res = Net::HTTP.start(url.host, url.port, :use_ssl => true) {|http|
       http.request(req)
     }
     check_response(res)
@@ -85,6 +85,7 @@ while true
   if show_next == "y"
     foodtrucks.show_open
   elsif show_next == "n"
+    Formatador.display_line("[green]-- BON APPETIT! --[/]")
     exit(0)
   else
     puts "Sorry, that is not a valid option. Show next 10? Y/N: "
