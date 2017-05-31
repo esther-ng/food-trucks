@@ -1,11 +1,10 @@
 #!/usr/bin/env ruby
 
 require 'net/http'
-require 'optparse'
+# require 'optparse'
 require 'date'
 require 'json'
 require 'formatador'
-
 
 class API
   TZ = "-07:00"
@@ -20,10 +19,10 @@ class API
   def show_open
     results = get_open
     if results.empty?
-      puts "-- END LIST --"
+      Formatador.display_line("[red]-- END LIST --[/]")
       exit(0)
     end
-    Formatador.display_table(get_open, ["NAME", "ADDRESS"])
+    Formatador.display_table(results, ["NAME", "ADDRESS"])
     @skip_first_n += LIMIT
   end
 
@@ -56,12 +55,24 @@ class API
     res = Net::HTTP.start(url.host, url.port) {|http|
       http.request(req)
     }
+    check_response(res)
     data = JSON.parse(res.body)
     data.each do |f|
       f["NAME"] = f.delete("applicant")
       f["ADDRESS"] = f.delete("location")
     end
     data
+  end
+
+  def check_response(res)
+    if res.code == "429"
+      puts "Your usage has been throttled by the San Francisco Data API. Please consider setting up an App Token to prevent throttling."
+      exit(1)
+    end
+    unless res.is_a?(Net::HTTPSuccess)
+      puts "Could not process request. Please try again later. #{res.code}"
+      exit(1)
+    end
   end
 end
 
