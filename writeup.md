@@ -2,4 +2,4 @@ If I were asked to build this as a full-scale web application, I would create a 
 
 If performance with the SFAPI were suboptimal, I would look into caching and may consider using a database and updating at intervals rather than relying on a third-party service in realtime.
 
-[Trello Board](https://trello.com/b/9pmDclkq)
+[Trello Board for Command Line Program](https://trello.com/b/9pmDclkq)
