@@ -44,6 +44,11 @@ class API
   end
 
   def show_open
+    results = get_open
+    if results.empty?
+      puts "-- END LIST --"
+      exit(0)
+    end
     Formatador.display_table(get_open, ["NAME", "ADDRESS"])
     @skip_first_n += LIMIT
   end
