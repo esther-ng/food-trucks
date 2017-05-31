@@ -17,17 +17,38 @@ class API
     @skip_first_n = 0
   end
 
+  def show_open
+    results = get_open
+    if results.empty?
+      puts "-- END LIST --"
+      exit(0)
+    end
+    Formatador.display_table(get_open, ["NAME", "ADDRESS"])
+    @skip_first_n += LIMIT
+  end
+
+  private
+
+  def current_time
+    Time.now.getlocal(TZ)
+  end
+
+  def formatted_time
+    current_time.strftime("%R")
+  end
+
+  def today
+    current_time.wday
+  end
+
   def url
-    timePST = Time.now.getlocal(TZ)
-    time = timePST.strftime("%R")
-    day = "?dayorder=#{timePST.wday}"
+    day = "?dayorder=#{today}"
     sel = "&$select=#{SELECTED_COLUMNS}"
     order = "&$order=applicant"
     limit = "&$limit=#{LIMIT}"
     offset = "&$offset=#{@skip_first_n}"
-    isopen = "&$where=start24<'#{time}' AND end24>'#{time}'"
-    url = URI.parse(URI.escape(BASE_URL + day + sel + order + limit + offset + isopen))
-    url
+    isopen = "&$where=start24<'#{formatted_time}' AND end24>'#{formatted_time}'"
+    URI.parse(URI.escape(BASE_URL + day + sel + order + limit + offset + isopen))
   end
 
   def get_open
@@ -41,16 +62,6 @@ class API
       f["ADDRESS"] = f.delete("location")
     end
     data
-  end
-
-  def show_open
-    results = get_open
-    if results.empty?
-      puts "-- END LIST --"
-      exit(0)
-    end
-    Formatador.display_table(get_open, ["NAME", "ADDRESS"])
-    @skip_first_n += LIMIT
   end
 end
 
